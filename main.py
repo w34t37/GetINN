@@ -15,7 +15,7 @@ try:
     file_result_path = os.path.join(current_dir, 'inn.txt')
     # в этот файл сохранится список с найденными ИНН
     file_errors_path = os.path.join(current_dir, 'err.txt')
-    # в этот файл сохранися список с ошибками в данных
+    # в этот файл сохранится список с ошибками в данных
     file_res = open(file_result_path, "w")
     file_err = open(file_errors_path, "w")
     browser = webdriver.Chrome()
@@ -42,60 +42,60 @@ try:
                 surname = fio[0]
                 name = fio[1]
                 patronymic = fio[2]+' '+fio[3]
-            if True:
-                if surname.find("*") != -1 or name.find("*") != -1 or patronymic.find("*") != -1 or surname.find(
-                        "(") != -1 or name.find("(") != -1 or patronymic.find("(") != -1:
-                    error = 'fio error * or ()'
-                    file_err.write(
-                        read_str[0] + ';' + read_str[1] + ';' + read_str[2] + ';' + read_str[3] + ';' + read_str[
-                            4] + ';' + error + '\n')
-                else:
-                    id = read_str[4]
-                    birthdate = read_str[1]
-                    sss = read_str[2]
-                    nnn = read_str[3]
+            # Проверка на наличие знаков ( и *   Такие во множестве присутствовали в исходных данных
+            if surname.find("*") != -1 or name.find("*") != -1 or patronymic.find("*") != -1 or surname.find(
+                    "(") != -1 or name.find("(") != -1 or patronymic.find("(") != -1:
+                error = 'fio error * or ()'
+                file_err.write(
+                    read_str[0] + ';' + read_str[1] + ';' + read_str[2] + ';' + read_str[3] + ';' + read_str[
+                        4] + ';' + error + '\n')
+            else:
+                id = read_str[4]
+                birthdate = read_str[1]
+                sss = read_str[2]
+                nnn = read_str[3]
 
-                    if len(str(read_str[3])) == 6 and len(str(read_str[2])) == 4 and str(read_str[2]).isdigit() and str(read_str[3]).isdigit():
-                        docnumber =read_str[2] +' '+ read_str[3]
-                        docdate = ""
-                        input_fam = browser.find_element_by_id("fam")
-                        input_fam.clear()
-                        for s in surname:
-                            input_fam.send_keys(s)
-                            time.sleep(0.01)
-                        input_nam = browser.find_element_by_id("nam")
-                        input_nam.clear()
-                        for s in name:
-                            input_nam.send_keys(s)
-                            time.sleep(0.01)
-                        input_otch = browser.find_element_by_id("otch")
-                        input_otch.clear()
-                        for s in patronymic:
-                            input_otch.send_keys(s)
-                            time.sleep(0.01)
-                        input_birthdate = browser.find_element_by_id("bdate")
-                        input_birthdate.clear()
-                        for s in birthdate:
-                            input_birthdate.send_keys(s)
-                        # скрипт пока только для паспортов граждан РФ
-                        input_docno = browser.find_element_by_id("docno")
-                        input_docno.clear()
-                        for s in docnumber:
-                            input_docno.send_keys(s)
-                        btn_send = browser.find_element_by_id("btn_send")
-                        print(surname + ';' + name + ';' + patronymic + ';' + birthdate + ';' + "21" + ';' + docnumber + ';')
-                        btn_send.click()
-                        time.sleep(2)
-                        resultInn = browser.find_element_by_id("resultInn").text
-                        if resultInn !='':
-                            file_res.write(surname + ';' + name + ';' + patronymic + ';' + birthdate + ';' + "21" + ';' + docnumber + ';' +
-                            resultInn + ';' + id + '; \n')
-                            print(resultInn)
-                    else:
-                        error = 'passport error'
-                        file_err.write(
-                            read_str[0] + ';' + read_str[1] + ';' + read_str[2] + ';' + read_str[3] + ';' +
-                            read_str[4] + ';' + error + '\n')
+                if len(str(read_str[3])) == 6 and len(str(read_str[2])) == 4 and str(read_str[2]).isdigit() and str(read_str[3]).isdigit():
+                    docnumber =read_str[2] +' '+ read_str[3]
+                    docdate = ""
+                    input_fam = browser.find_element_by_id("fam")
+                    input_fam.clear()
+                    for s in surname:
+                        input_fam.send_keys(s)
+                        time.sleep(0.01)
+                    input_nam = browser.find_element_by_id("nam")
+                    input_nam.clear()
+                    for s in name:
+                        input_nam.send_keys(s)
+                        time.sleep(0.01)
+                    input_otch = browser.find_element_by_id("otch")
+                    input_otch.clear()
+                    for s in patronymic:
+                        input_otch.send_keys(s)
+                        time.sleep(0.01)
+                    input_birthdate = browser.find_element_by_id("bdate")
+                    input_birthdate.clear()
+                    for s in birthdate:
+                        input_birthdate.send_keys(s)
+                    # скрипт пока только для паспортов граждан РФ
+                    input_docno = browser.find_element_by_id("docno")
+                    input_docno.clear()
+                    for s in docnumber:
+                        input_docno.send_keys(s)
+                    btn_send = browser.find_element_by_id("btn_send")
+                    print(surname + ';' + name + ';' + patronymic + ';' + birthdate + ';' + "21" + ';' + docnumber + ';')
+                    btn_send.click()
+                    time.sleep(2)
+                    resultInn = browser.find_element_by_id("resultInn").text
+                    if resultInn !='':
+                        file_res.write(surname + ';' + name + ';' + patronymic + ';' + birthdate + ';' + "21" + ';' + docnumber + ';' +
+                        resultInn + ';' + id + '; \n')
+                        print(resultInn)
+                else:
+                    error = 'passport error'
+                    file_err.write(
+                        read_str[0] + ';' + read_str[1] + ';' + read_str[2] + ';' + read_str[3] + ';' +
+                        read_str[4] + ';' + error + '\n')
 except Exception as error:
     print(f'Произошла ошибка, вот её трэйсбэк: {error}')
 finally:
