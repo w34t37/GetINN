@@ -5,28 +5,6 @@ from selenium.webdriver.support import expected_conditions as EC
 import os
 import time
 
-from enum import Enum
-
-class DocumentType(Enum):
-    # Паспорт гражданина СССР
-    passport_ussr = "01"
-    # Свидетельство о рождении
-    birth_certificate = "03"
-    # Паспорт иностранного гражданина
-    passport_foreign = "10"
-    # Вид на жительство в России
-    residence_permit = "12"
-    # Разрешение на временное проживание в России
-    residence_permit_temp = "15"
-    # Свидетельство о предоставлении временного убежища на территории России
-    asylum_certificate_temp = "19"
-    # Паспорт гражданина России
-    passport_russia = "21"
-    # Свидетельство о рождении, выданное уполномоченным органом иностранного государства
-    birth_certificate_foreign = "23"
-    # Вид на жительство иностранного гражданина
-    residence_permit_foreign = "62"
-
 link = "https://service.nalog.ru/inn.do"    # сервис Узнать ИНН
 
 try:
@@ -46,12 +24,11 @@ try:
     input3 = browser.find_element_by_id("unichk_0")
     input3.click()
     button = browser.find_element_by_id("btnContinue")
+    # Соглашаемся на обработку персональных данных
     button.click()
     with open(file_input_path) as file:
         for item in file:
             time.sleep(0.3)
-            input_pass = browser.find_element_by_id("uni_select_3")
-            input_pass.send_keys('33')
             error = ''
             resultInn = ''
             read_str = item.split(';')
@@ -68,23 +45,19 @@ try:
             if True:
                 if surname.find("*") != -1 or name.find("*") != -1 or patronymic.find("*") != -1 or surname.find(
                         "(") != -1 or name.find("(") != -1 or patronymic.find("(") != -1:
-                    error = 'fio error 8 or ()'
+                    error = 'fio error * or ()'
                     file_err.write(
                         read_str[0] + ';' + read_str[1] + ';' + read_str[2] + ';' + read_str[3] + ';' + read_str[
                             4] + ';' + error + '\n')
                 else:
                     id = read_str[4]
-
                     birthdate = read_str[1]
-                    doctype = DocumentType.passport_ussr.value
                     sss = read_str[2]
                     nnn = read_str[3]
-                    if len(str(read_str[3])) == 6:
-                    #if len(str(read_str[3])) == 6 and len(str(read_str[2])) == 4 and str(
-                    #        read_str[2]).isdigit() and str(read_str[3]).isdigit():
-                        docnumber =read_str[2] +' '+ read_str[3] #str(read_str[2])[0:2] + ' ' + str(read_str[2])[2:4] + ' ' + str(read_str[3])
-                        #print(docnumber)
-                        docdate = ""  # row['д   ата'].strftime("%d")+'.'+row['дата'].strftime("%m") + '.'+row['дата'].strftime("%Y")
+
+                    if len(str(read_str[3])) == 6 and len(str(read_str[2])) == 4 and str(read_str[2]).isdigit() and str(read_str[3]).isdigit():
+                        docnumber =read_str[2] +' '+ read_str[3]
+                        docdate = ""
                         input_fam = browser.find_element_by_id("fam")
                         input_fam.clear()
                         for s in surname:
@@ -104,30 +77,18 @@ try:
                         input_birthdate.clear()
                         for s in birthdate:
                             input_birthdate.send_keys(s)
-                        input_pass.clear()
-                        if str(read_str[2]).isdigit():
-                            print(input_pass.text )
-                            if input_pass.text != '21 - Паспорт гражданина Российской Федерации':
-                                for q in '21 ':
-                                    input_pass.send_keys(q)
-                        else:
-                            if input_pass.text != '01 - Паспорт гражданина СССР':
-                                for q in '01 ':
-                                    input_pass.send_keys(q)
+                        # скрипт пока только для паспортов граждан РФ
                         input_docno = browser.find_element_by_id("docno")
                         input_docno.clear()
                         for s in docnumber:
                             input_docno.send_keys(s)
                         btn_send = browser.find_element_by_id("btn_send")
-                        print(surname + ';' + name + ';' + patronymic + ';' + birthdate + ';' + doctype + ';' + docnumber + ';')
+                        print(surname + ';' + name + ';' + patronymic + ';' + birthdate + ';' + "21" + ';' + docnumber + ';')
                         btn_send.click()
                         time.sleep(2)
-                        #resultInn = browser.find_element_by_id("resultInn").text
-                        #inn_elem = WebDriverWait(browser, 5).until(EC.visibility_of_element_located((By.ID, "resultInn")))
-                        #print(inn_elem.text)
                         resultInn = browser.find_element_by_id("resultInn").text
                         if resultInn !='':
-                            file_res.write(surname + ';' + name + ';' + patronymic + ';' + birthdate + ';' + doctype + ';' + docnumber + ';' +
+                            file_res.write(surname + ';' + name + ';' + patronymic + ';' + birthdate + ';' + "21" + ';' + docnumber + ';' +
                             resultInn + ';' + id + '; \n')
                             print(resultInn)
                     else:
@@ -138,9 +99,6 @@ try:
 except Exception as error:
     print(f'Произошла ошибка, вот её трэйсбэк: {error}')
 finally:
-    # успеваем скопировать код за 30 секунд
     time.sleep(3)
     # закрываем браузер после всех манипуляций
-    #browser.quit()
-
-# не забываем оставить пустую строку в конце файла
+    browser.quit()
